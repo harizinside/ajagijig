@@ -1,5 +1,4 @@
 {
-  "file_scan_exclusions": ["**/routeTree.gen.ts"],
   "languages": {
     "JavaScript": {
       "formatter": {

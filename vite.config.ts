@@ -10,6 +10,7 @@ import tailwindcss from "@tailwindcss/vite"
 import webfontDownload from "vite-plugin-webfont-dl"
 import { compression } from "vite-plugin-compression2"
 
+/** @type {import('vite').defineConfig} */
 const config = defineConfig({
   plugins: [
     devtools(),

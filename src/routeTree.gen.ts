@@ -9,38 +9,75 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LaheluRouteImport } from './routes/lahelu'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiHealthcheckRouteImport } from './routes/api/healthcheck'
+import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc.$'
 
+const LaheluRoute = LaheluRouteImport.update({
+  id: '/lahelu',
+  path: '/lahelu',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiHealthcheckRoute = ApiHealthcheckRouteImport.update({
+  id: '/api/healthcheck',
+  path: '/api/healthcheck',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
+  id: '/api/rpc/$',
+  path: '/api/rpc/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/lahelu': typeof LaheluRoute
+  '/api/healthcheck': typeof ApiHealthcheckRoute
+  '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/lahelu': typeof LaheluRoute
+  '/api/healthcheck': typeof ApiHealthcheckRoute
+  '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/lahelu': typeof LaheluRoute
+  '/api/healthcheck': typeof ApiHealthcheckRoute
+  '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/lahelu' | '/api/healthcheck' | '/api/rpc/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/lahelu' | '/api/healthcheck' | '/api/rpc/$'
+  id: '__root__' | '/' | '/lahelu' | '/api/healthcheck' | '/api/rpc/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LaheluRoute: typeof LaheluRoute
+  ApiHealthcheckRoute: typeof ApiHealthcheckRoute
+  ApiRpcSplatRoute: typeof ApiRpcSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/lahelu': {
+      id: '/lahelu'
+      path: '/lahelu'
+      fullPath: '/lahelu'
+      preLoaderRoute: typeof LaheluRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +85,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/healthcheck': {
+      id: '/api/healthcheck'
+      path: '/api/healthcheck'
+      fullPath: '/api/healthcheck'
+      preLoaderRoute: typeof ApiHealthcheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/rpc/$': {
+      id: '/api/rpc/$'
+      path: '/api/rpc/$'
+      fullPath: '/api/rpc/$'
+      preLoaderRoute: typeof ApiRpcSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LaheluRoute: LaheluRoute,
+  ApiHealthcheckRoute: ApiHealthcheckRoute,
+  ApiRpcSplatRoute: ApiRpcSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

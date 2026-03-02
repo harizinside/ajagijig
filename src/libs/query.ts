@@ -1,10 +1,5 @@
-// app/utils/queryClient.ts
 import { StandardRPCJsonSerializer } from "@orpc/client/standard"
-import {
-  QueryClient,
-  defaultShouldDehydrateQuery,
-  isServer,
-} from "@tanstack/react-query"
+import { QueryClient, defaultShouldDehydrateQuery } from "@tanstack/react-query"
 
 const serializer = new StandardRPCJsonSerializer({
   customJsonSerializers: [],
@@ -41,16 +36,18 @@ function makeQueryClient() {
 let browserQueryClient: QueryClient | undefined
 
 export function getQueryClient() {
-  if (isServer) {
+  // TanStack Start pakai `import.meta.env.SSR` bukan `isServer` dari react-query
+  if (import.meta.env.SSR) {
     return makeQueryClient()
-  } else {
-    if (!browserQueryClient) {
-      browserQueryClient = makeQueryClient()
-      if (typeof window !== "undefined") {
-        // untuk chrome extension devtools
-        ;(window as any).__TANSTACK_QUERY_CLIENT__ = browserQueryClient
-      }
-    }
-    return browserQueryClient
   }
+
+  if (!browserQueryClient) {
+    browserQueryClient = makeQueryClient()
+    if (typeof window !== "undefined") {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(window as any).__TANSTACK_QUERY_CLIENT__ = browserQueryClient
+    }
+  }
+
+  return browserQueryClient
 }

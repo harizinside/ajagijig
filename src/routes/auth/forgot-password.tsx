@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { GalleryVerticalEnd } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Field,
@@ -15,11 +14,11 @@ export const Route = createFileRoute("/auth/forgot-password")({
   component: RouteComponent,
 })
 
-function RouteComponent({ className, ...props }: React.ComponentProps<"div">) {
+function RouteComponent() {
   return (
     <div className="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
       <div className="w-full max-w-sm">
-        <div className={cn("flex flex-col gap-6", className)} {...props}>
+        <div className="flex flex-col gap-6">
           <form>
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">

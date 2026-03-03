@@ -17,31 +17,23 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
-import * as z from "zod"
+import { SignUpSchema } from "@/schema/auth"
 
 export const Route = createFileRoute("/auth/sign-up")({
   component: RouteComponent,
 })
 
-const formSchema = z.object({
-  title: z
-    .string()
-    .min(5, "Bug title must be at least 5 characters.")
-    .max(32, "Bug title must be at most 32 characters."),
-  description: z
-    .string()
-    .min(20, "Description must be at least 20 characters.")
-    .max(100, "Description must be at most 100 characters."),
-})
-
-function RouteComponent({ className, ...props }: React.ComponentProps<"div">) {
+function RouteComponent() {
   const form = useForm({
     defaultValues: {
-      title: "",
-      description: "",
+      name: "",
+      email: "",
+      password: "",
+      callbackURL: "",
+      phoneNumber: "",
     },
     validators: {
-      onSubmit: formSchema,
+      onSubmit: SignUpSchema,
     },
     onSubmit: async ({ value }) => {
       toast("You submitted the following values:", {
@@ -64,7 +56,7 @@ function RouteComponent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
-        <Card {...props}>
+        <Card>
           <CardHeader>
             <CardTitle>Create an account</CardTitle>
             <CardDescription>
@@ -72,37 +64,85 @@ function RouteComponent({ className, ...props }: React.ComponentProps<"div">) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                form.handleSubmit()
+              }}
+            >
               <FieldGroup>
-                <Field>
-                  <FieldLabel htmlFor="name">Full Name</FieldLabel>
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="John Doe"
-                    required
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="email">Email</FieldLabel>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="m@example.com"
-                    required
-                  />
-                  <FieldDescription>
-                    We&apos;ll use this to contact you. We will not share your
-                    email with anyone else.
-                  </FieldDescription>
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <Input id="password" type="password" required />
-                  <FieldDescription>
-                    Must be at least 8 characters long.
-                  </FieldDescription>
-                </Field>
+                <form.Field name="name">
+                  {(field) => {
+                    return (
+                      <Field>
+                        <FieldLabel htmlFor={field.name}>
+                          First Name:
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                        {!field.state.meta.isValid && (
+                          <em>{field.state.meta.errors.join(",")}</em>
+                        )}
+                      </Field>
+                    )
+                  }}
+                </form.Field>
+                <form.Field name="email">
+                  {(field) => {
+                    return (
+                      <Field>
+                        <FieldLabel htmlFor={field.name}>
+                          First Name:
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                        <FieldDescription>
+                          We&apos;ll use this to contact you. We will not share
+                          your email with anyone else.
+                        </FieldDescription>
+                        {!field.state.meta.isValid && (
+                          <em>{field.state.meta.errors.join(",")}</em>
+                        )}
+                      </Field>
+                    )
+                  }}
+                </form.Field>
+                <form.Field name="password">
+                  {(field) => {
+                    return (
+                      <Field>
+                        <FieldLabel htmlFor={field.name}>
+                          First Name:
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          type="password"
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                        <FieldDescription>
+                          Must be at least 8 characters long.
+                        </FieldDescription>
+                        {!field.state.meta.isValid && (
+                          <em>{field.state.meta.errors.join(",")}</em>
+                        )}
+                      </Field>
+                    )
+                  }}
+                </form.Field>
+
                 <Field>
                   <FieldLabel htmlFor="confirm-password">
                     Confirm Password
@@ -112,6 +152,7 @@ function RouteComponent({ className, ...props }: React.ComponentProps<"div">) {
                     Please confirm your password.
                   </FieldDescription>
                 </Field>
+
                 <FieldGroup>
                   <Field>
                     <Button type="submit">Create Account</Button>

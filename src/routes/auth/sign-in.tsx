@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { Link } from "@tanstack/react-router"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -21,11 +20,11 @@ export const Route = createFileRoute("/auth/sign-in")({
   component: RouteComponent,
 })
 
-function RouteComponent({ className, ...props }: React.ComponentProps<"div">) {
+function RouteComponent() {
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
-        <div className={cn("flex flex-col gap-6", className)} {...props}>
+        <div className="flex flex-col gap-6">
           <Card>
             <CardHeader>
               <CardTitle>Login to your account</CardTitle>

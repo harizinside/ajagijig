@@ -15,10 +15,15 @@ export const users = table("users", {
     .primaryKey()
     .default(sql`uuidv7()`),
 
-  name: varchar({ length: 255 }).notNull(),
+  name: varchar().notNull(),
+
   email: varchar({ length: 255 }).notNull().unique(),
   emailVerified: boolean(),
-  image: varchar({ length: 255 }).notNull(),
+
+  phoneNumber: varchar({ length: 20 }).unique(),
+  phoneNumberVerified: boolean().default(false).notNull(),
+
+  image: varchar(),
 
   createdAt: timestamp({ precision: 6, withTimezone: true })
     .defaultNow()
@@ -43,8 +48,8 @@ export const sessions = table(
       .notNull(),
 
     token: text().notNull().unique(),
-    expiresAt: timestamp({ withTimezone: true }).notNull(),
-    ip: text(),
+    expiresAt: timestamp({ precision: 6, withTimezone: true }).notNull(),
+    ipAddress: text(),
     userAgent: text(),
 
     impersonatedBy: uuid(),
@@ -66,17 +71,18 @@ export const accounts = table("accounts", {
     onDelete: "cascade",
   }),
 
-  accessToken: text(),
-  accessTokenExpiresAt: timestamp(),
-
   accountId: text().notNull(),
-  idToken: text(),
-  password: text(),
   providerId: text().notNull(),
+
+  accessToken: text(),
   refreshToken: text(),
-  refreshTokenExpiresAt: timestamp(),
+
+  accessTokenExpiresAt: timestamp({ precision: 6, withTimezone: true }),
+  refreshTokenExpiresAt: timestamp({ precision: 6, withTimezone: true }),
 
   scope: text(),
+  idToken: text(),
+  password: text(),
 
   createdAt: timestamp({ precision: 6, withTimezone: true })
     .defaultNow()

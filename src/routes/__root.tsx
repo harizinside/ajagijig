@@ -5,8 +5,9 @@ import { TanStackDevtools } from "@tanstack/react-devtools"
 import { formDevtoolsPlugin } from "@tanstack/react-form-devtools"
 import { QueryClientProvider } from "@tanstack/react-query"
 
-import { getQueryClient } from "@/libs/query"
+import { getQueryClient } from "@/lib/query"
 import Header from "@/components/Header"
+import { Toaster } from "@/components/ui/sonner"
 import appCss from "@/styles.css?url"
 
 export const Route = createRootRoute({
@@ -43,8 +44,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         {/* QueryClientProvider harus wrap semua children */}
         <QueryClientProvider client={queryClient}>
-          <Header />
           {children}
+          <Toaster />
           <TanStackDevtools
             config={{ position: "bottom-right" }}
             plugins={[

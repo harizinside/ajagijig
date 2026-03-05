@@ -1,10 +1,11 @@
 import { addTodo, listTodos } from "./todos"
-import { signUp } from "./auth"
+import { signUp, signIn } from "./auth"
 
 export default {
   listTodos,
   addTodo,
   auth: {
     signUp,
+    signIn,
   },
 }

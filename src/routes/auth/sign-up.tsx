@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { Link } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
 import { useForm } from "@tanstack/react-form"
 import { useMutation } from "@tanstack/react-query"
 import { isDefinedError } from "@orpc/client"
@@ -29,17 +29,23 @@ export const Route = createFileRoute("/auth/sign-up")({
 })
 
 function RouteComponent() {
+  const navigate = useNavigate()
+
   const mutation = useMutation(
     orpc.auth.signUp.mutationOptions({
       retry: true,
       onError: (error) => {
         if (isDefinedError(error)) {
-          // Handle type-safe error here
+          toast.error("Sign up failed", {
+            description: JSON.stringify(error),
+          })
+          console.error(error)
         }
       },
       onSuccess: (data) => {
-        // Handle successful mutation here
-        console.log(data)
+        toast.success("Account created!", { id: "sign-up-success" }) // ← pakai id agar tidak duplikat
+        navigate({ to: "/auth/sign-in" })
+        console.info(data)
       },
     }),
   )

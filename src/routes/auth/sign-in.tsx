@@ -1,5 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { Link } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
+import { useForm } from "@tanstack/react-form"
+import { useMutation } from "@tanstack/react-query"
+import { isDefinedError } from "@orpc/client"
+import { orpc } from "@/orpc/clients"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -15,12 +19,50 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { toast } from "sonner"
 
 export const Route = createFileRoute("/auth/sign-in")({
   component: RouteComponent,
 })
 
 function RouteComponent() {
+  const navigate = useNavigate()
+
+  const mutation = useMutation(
+    orpc.auth.signIn.mutationOptions({
+      retry: true,
+      onError: (error) => {
+        if (isDefinedError(error)) {
+          toast.error("Sign up failed", {
+            description: JSON.stringify(error),
+          })
+          console.error(error)
+        }
+      },
+      onSuccess: (data) => {
+        toast.success("Account created!", { id: "sign-up-success" }) // ← pakai id agar tidak duplikat
+        navigate({ to: "/auth/sign-in" })
+        console.info(data)
+      },
+    }),
+  )
+
+  const form = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+    validators: {
+      // onSubmit: SignUpSchema,
+    },
+    onSubmit: async ({ value }) => {
+      mutation.mutate({
+        email: value.email,
+        password: value.password,
+      })
+    },
+  })
+
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">

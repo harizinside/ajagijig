@@ -5,6 +5,7 @@ import { tanstackStartCookies } from "better-auth/tanstack-start"
 import { redisStorage } from "@better-auth/redis-storage"
 import { createServerFn } from "@tanstack/react-start"
 import { getRequestHeaders } from "@tanstack/react-start/server"
+import { v7 as uuidv7 } from "uuid"
 
 import { db } from "@/lib/db"
 import * as schema from "@/db/schema"
@@ -19,13 +20,25 @@ export const auth = betterAuth({
   plugins: [tanstackStartCookies(), phoneNumber(), admin()],
   advanced: {
     database: {
-      generateId: false, // "serial" for auto-incrementing numeric IDs
+      generateId: () => uuidv7(), // "serial" for auto-incrementing numeric IDs
     },
   },
   secondaryStorage: redisStorage({
     client: redis,
     keyPrefix: "better-auth:", // optional, defaults to "better-auth:"
   }),
+  user: {
+    modelName: "users",
+  },
+  session: {
+    modelName: "sessions",
+  },
+  account: {
+    modelName: "accounts",
+  },
+  verification: {
+    modelName: "verification", // ← singular, sesuai schema-mu
+  },
   emailAndPassword: {
     enabled: true,
     disableSignUp: false,
@@ -41,8 +54,19 @@ export const auth = betterAuth({
       console.log(`[${level}] ${message}`, ...args)
     },
   },
-  databaseHooks: {},
-  experimental: { joins: true },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          console.log("[DB HOOK] Creating user:", user)
+          return { data: user }
+        },
+        after: async (user) => {
+          console.log("[DB HOOK] User created:", user)
+        },
+      },
+    },
+  },
 })
 
 export const getSession = createServerFn({ method: "GET" }).handler(

@@ -11,9 +11,7 @@ import {
 import { sql } from "drizzle-orm"
 
 export const users = table("users", {
-  id: uuid()
-    .primaryKey()
-    .default(sql`uuidv7()`),
+  id: uuid().primaryKey(),
 
   name: varchar().notNull(),
 
@@ -24,6 +22,12 @@ export const users = table("users", {
   phoneNumberVerified: boolean().default(false).notNull(),
 
   image: varchar(),
+
+  role: varchar({ length: 155 }),
+  banned: boolean().default(false).notNull(),
+  banReason: text(),
+  banExpires: timestamp({ withTimezone: true }),
+  isAnonymous: boolean(),
 
   createdAt: timestamp({ precision: 6, withTimezone: true })
     .defaultNow()
@@ -37,9 +41,7 @@ export const users = table("users", {
 export const sessions = table(
   "sessions",
   {
-    id: uuid()
-      .primaryKey()
-      .default(sql`uuidv7()`),
+    id: uuid().primaryKey(),
 
     userId: uuid()
       .references(() => users.id, {
@@ -63,9 +65,7 @@ export const sessions = table(
 )
 
 export const accounts = table("accounts", {
-  id: uuid()
-    .primaryKey()
-    .default(sql`uuidv7()`),
+  id: uuid().primaryKey(),
 
   userId: uuid().references(() => users.id, {
     onDelete: "cascade",
@@ -96,9 +96,7 @@ export const accounts = table("accounts", {
 export const verification = table(
   "verification",
   {
-    id: uuid()
-      .primaryKey()
-      .default(sql`uuidv7()`),
+    id: uuid().primaryKey(),
 
     identifier: text().notNull(),
     value: text().notNull(),

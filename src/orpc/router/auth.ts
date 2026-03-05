@@ -11,7 +11,6 @@ export const signUp = os
         email: input.email,
         password: input.password,
         image: "/images/default.webp",
-        callbackURL: input.callbackURL,
         phoneNumber: input.phoneNumber,
       },
       headers: context.reqHeaders,
@@ -27,7 +26,6 @@ export const signIn = os
       body: {
         email: input.email,
         password: input.password,
-        callbackURL: input.callbackURL,
       },
       headers: context.reqHeaders,
     })

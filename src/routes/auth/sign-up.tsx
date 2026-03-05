@@ -1,6 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { Link } from "@tanstack/react-router"
 import { useForm } from "@tanstack/react-form"
+import { useMutation } from "@tanstack/react-query"
+import { isDefinedError } from "@orpc/client"
+import { SignUpSchema } from "@/schema/auth"
+import { orpc } from "@/orpc/clients"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -16,39 +20,48 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/PasswordInput"
+
 import { toast } from "sonner"
-import { SignUpSchema } from "@/schema/auth"
 
 export const Route = createFileRoute("/auth/sign-up")({
   component: RouteComponent,
 })
 
 function RouteComponent() {
+  const mutation = useMutation(
+    orpc.auth.signUp.mutationOptions({
+      retry: true,
+      onError: (error) => {
+        if (isDefinedError(error)) {
+          // Handle type-safe error here
+        }
+      },
+      onSuccess: (data) => {
+        // Handle successful mutation here
+        console.log(data)
+      },
+    }),
+  )
+
   const form = useForm({
     defaultValues: {
       name: "",
       email: "",
       password: "",
-      callbackURL: "",
       phoneNumber: "",
+      confirmPassword: "",
     },
     validators: {
       onSubmit: SignUpSchema,
     },
     onSubmit: async ({ value }) => {
-      toast("You submitted the following values:", {
-        description: (
-          <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-            <code>{JSON.stringify(value, null, 2)}</code>
-          </pre>
-        ),
-        position: "bottom-right",
-        classNames: {
-          content: "flex flex-col gap-2",
-        },
-        style: {
-          "--border-radius": "calc(var(--radius)  + 4px)",
-        } as React.CSSProperties,
+      mutation.mutate({
+        name: value.name,
+        email: value.email,
+        password: value.password,
+        phoneNumber: value.phoneNumber,
+        confirmPassword: value.confirmPassword,
       })
     },
   })
@@ -72,86 +85,109 @@ function RouteComponent() {
             >
               <FieldGroup>
                 <form.Field name="name">
-                  {(field) => {
-                    return (
-                      <Field>
-                        <FieldLabel htmlFor={field.name}>
-                          First Name:
-                        </FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                        />
-                        {!field.state.meta.isValid && (
-                          <em>{field.state.meta.errors.join(",")}</em>
-                        )}
-                      </Field>
-                    )
-                  }}
-                </form.Field>
-                <form.Field name="email">
-                  {(field) => {
-                    return (
-                      <Field>
-                        <FieldLabel htmlFor={field.name}>
-                          First Name:
-                        </FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                        />
-                        <FieldDescription>
-                          We&apos;ll use this to contact you. We will not share
-                          your email with anyone else.
-                        </FieldDescription>
-                        {!field.state.meta.isValid && (
-                          <em>{field.state.meta.errors.join(",")}</em>
-                        )}
-                      </Field>
-                    )
-                  }}
-                </form.Field>
-                <form.Field name="password">
-                  {(field) => {
-                    return (
-                      <Field>
-                        <FieldLabel htmlFor={field.name}>
-                          First Name:
-                        </FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          type="password"
-                          onChange={(e) => field.handleChange(e.target.value)}
-                        />
-                        <FieldDescription>
-                          Must be at least 8 characters long.
-                        </FieldDescription>
-                        {!field.state.meta.isValid && (
-                          <em>{field.state.meta.errors.join(",")}</em>
-                        )}
-                      </Field>
-                    )
-                  }}
+                  {(field) => (
+                    <Field>
+                      <FieldLabel htmlFor={field.name}>Your name:</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                      {!field.state.meta.isValid && (
+                        <em>{field.state.meta.errors.join(",")}</em>
+                      )}
+                    </Field>
+                  )}
                 </form.Field>
 
-                <Field>
-                  <FieldLabel htmlFor="confirm-password">
-                    Confirm Password
-                  </FieldLabel>
-                  <Input id="confirm-password" type="password" required />
-                  <FieldDescription>
-                    Please confirm your password.
-                  </FieldDescription>
-                </Field>
+                <form.Field name="phoneNumber">
+                  {(field) => (
+                    <Field>
+                      <FieldLabel htmlFor={field.name}>
+                        Phone Number:
+                      </FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                      {!field.state.meta.isValid && (
+                        <em>{field.state.meta.errors.join(",")}</em>
+                      )}
+                    </Field>
+                  )}
+                </form.Field>
+
+                <form.Field name="email">
+                  {(field) => (
+                    <Field>
+                      <FieldLabel htmlFor={field.name}>Email:</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        type="email"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                      <FieldDescription>
+                        We&apos;ll use this to contact you. We will not share
+                        your email with anyone else.
+                      </FieldDescription>
+                      {!field.state.meta.isValid && (
+                        <em>{field.state.meta.errors.join(",")}</em>
+                      )}
+                    </Field>
+                  )}
+                </form.Field>
+
+                {/* PASSWORD FIELD */}
+                <form.Field name="password">
+                  {(field) => (
+                    <Field>
+                      <FieldLabel htmlFor={field.name}>Password:</FieldLabel>
+                      <PasswordInput field={field} />
+                      <FieldDescription>
+                        Must be at least 8 characters long.
+                      </FieldDescription>
+                      {!field.state.meta.isValid && (
+                        <em>{field.state.meta.errors.join(",")}</em>
+                      )}
+                    </Field>
+                  )}
+                </form.Field>
+
+                {/* CONFIRM PASSWORD FIELD */}
+                <form.Field
+                  name="confirmPassword"
+                  validators={{
+                    onChangeListenTo: ["password"],
+                    onChange: ({ value, fieldApi }) => {
+                      if (value !== fieldApi.form.getFieldValue("password")) {
+                        return "Passwords do not match"
+                      }
+                      return undefined
+                    },
+                  }}
+                >
+                  {(field) => (
+                    <Field>
+                      <FieldLabel htmlFor={field.name}>
+                        Confirm Password
+                      </FieldLabel>
+                      <PasswordInput field={field} />
+                      <FieldDescription className="text-red-600">
+                        {!field.state.meta.isValid && (
+                          <em>{field.state.meta.errors.join(",")}</em>
+                        )}
+                      </FieldDescription>
+                    </Field>
+                  )}
+                </form.Field>
 
                 <FieldGroup>
                   <Field>

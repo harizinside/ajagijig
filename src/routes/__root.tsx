@@ -8,6 +8,7 @@ import { QueryClientProvider } from "@tanstack/react-query"
 import { getQueryClient } from "@/lib/query"
 import Header from "@/components/Header"
 import { Toaster } from "@/components/ui/sonner"
+import { ThemeProvider } from "@/components/ThemeProvider"
 import appCss from "@/styles.css?url"
 
 export const Route = createRootRoute({
@@ -44,7 +45,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         {/* QueryClientProvider harus wrap semua children */}
         <QueryClientProvider client={queryClient}>
-          {children}
+          <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+            {children}
+          </ThemeProvider>
           <Toaster />
           <TanStackDevtools
             config={{ position: "bottom-right" }}

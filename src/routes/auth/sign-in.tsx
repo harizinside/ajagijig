@@ -1,3 +1,5 @@
+import { useState } from "react"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { createFileRoute } from "@tanstack/react-router"
 import { Link, useNavigate } from "@tanstack/react-router"
 import { useForm } from "@tanstack/react-form"
@@ -5,6 +7,7 @@ import { useMutation } from "@tanstack/react-query"
 import { isDefinedError } from "@orpc/client"
 import { orpc } from "@/orpc/clients"
 import { Button } from "@/components/ui/button"
+import { SignInSchema } from "@/schema/auth"
 import {
   Card,
   CardContent,
@@ -26,11 +29,16 @@ export const Route = createFileRoute("/auth/sign-in")({
 })
 
 function RouteComponent() {
+  const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
   const mutation = useMutation(
     orpc.auth.signIn.mutationOptions({
       retry: true,
+      onMutate: () => {
+        setIsLoading(true)
+      },
       onError: (error) => {
         if (isDefinedError(error)) {
           toast.error("Sign up failed", {
@@ -40,9 +48,11 @@ function RouteComponent() {
         }
       },
       onSuccess: (data) => {
-        toast.success("Account created!", { id: "sign-up-success" }) // ← pakai id agar tidak duplikat
-        navigate({ to: "/auth/sign-in" })
+        navigate({ to: "/dashboard" })
         console.info(data)
+      },
+      onSettled() {
+        setIsLoading(false)
       },
     }),
   )
@@ -53,7 +63,7 @@ function RouteComponent() {
       password: "",
     },
     validators: {
-      // onSubmit: SignUpSchema,
+      onSubmit: SignInSchema,
     },
     onSubmit: async ({ value }) => {
       mutation.mutate({
@@ -75,32 +85,92 @@ function RouteComponent() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  form.handleSubmit()
+                }}
+              >
                 <FieldGroup>
+                  <form.Field name="email">
+                    {(field) => (
+                      <Field>
+                        <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          type="email"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          placeholder="m@example.com"
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                        {!field.state.meta.isValid && (
+                          <em>{field.state.meta.errors.join(",")}</em>
+                        )}
+                      </Field>
+                    )}
+                  </form.Field>
+                  <form.Field name="password">
+                    {(field) => (
+                      <Field>
+                        <div className="flex items-center">
+                          <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                          <Link
+                            to="/auth/forgot-password"
+                            className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                          >
+                            Forgot your password?
+                          </Link>
+                        </div>
+                        <div className="relative">
+                          <Input
+                            id={field.name}
+                            name={field.name}
+                            type={showPassword ? "text" : "password"}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            required
+                            className="pr-10"
+                            onChange={(e) => field.handleChange(e.target.value)}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword((prev) => !prev)}
+                            className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
+                            aria-label={
+                              showPassword ? "Hide password" : "Show password"
+                            }
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </button>
+                        </div>
+                        {!field.state.meta.isValid && (
+                          <em>{field.state.meta.errors.join(",")}</em>
+                        )}
+                      </Field>
+                    )}
+                  </form.Field>
                   <Field>
-                    <FieldLabel htmlFor="email">Email</FieldLabel>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="m@example.com"
-                      required
-                    />
-                  </Field>
-                  <Field>
-                    <div className="flex items-center">
-                      <FieldLabel htmlFor="password">Password</FieldLabel>
-                      <Link
-                        to="/auth/forgot-password"
-                        className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                      >
-                        Forgot your password?
-                      </Link>
-                    </div>
-                    <Input id="password" type="password" required />
-                  </Field>
-                  <Field>
-                    <Button type="submit">Login</Button>
-                    <Button variant="outline" type="button">
+                    <Button type="submit" disabled={isLoading}>
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Logging in...
+                        </>
+                      ) : (
+                        "Login"
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      type="button"
+                      disabled={isLoading}
+                    >
                       Login with Google
                     </Button>
                     <FieldDescription className="text-center">

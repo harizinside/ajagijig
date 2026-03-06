@@ -29,4 +29,6 @@ export const signIn = os
       },
       headers: context.reqHeaders,
     })
+
+    return data
   })
